@@ -226,13 +226,13 @@
             const am = encodeForUPI(paymentInfo.amount.toString());
             const tn = encodeForUPI(paymentInfo.note);
             
-            return `upi://pay?pa=${pa}&pn=${pn}&cu=${cu}&am=${am}&tn=${tn}`;
+            return `upi://pay?pa=${pa}&pn=${pn}&cu=${cu}&am=${am}&tn=${paymentInfo.id}#${tn}`;
         }
 
         function showPaymentDetails(paymentInfo) {
             return `
                 <div class="success">
-                    <h2>✓You are payment towards</h2>
+                    <h2>You are paying towards</h2>
                 </div>
                 <div class="payment-details">
                     <h3>Payment Information</h3>
