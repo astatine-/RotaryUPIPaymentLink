@@ -9,7 +9,20 @@
     <meta property="og:url" content="https://upipay.rbhn.org"/>
     <meta property="og:image"content="https://upipay.rbhn.org/RotaryMoE-R_CMYK-C.png"/>
 
+    <meta name="author" content="Arun Tanksali, Rotary Bengaluru Heritage North">
+
     <link rel="icon" href="https://upipay.rbhn.org/RotaryMoE-R_CMYK-C.png" type="image/x-icon">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9KTKCQ3WHX"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-9KTKCQ3WHX');
+    </script>
+
 
     <title>Rotary District 3192 UPI Payment Link</title>
     <style>
@@ -207,7 +220,6 @@
                 "amount": 6000,
                 "note": "Maarga 6 ICGFs registration package"
             },
-
             {
                 "id": "akn080625b",
                 "upi_address": "MAB.037347014960270@AXISBANK",
@@ -318,15 +330,15 @@
             window.location.href = upiURL;
             
             // Fallback: If the UPI app doesn't open, show the URL
-            setTimeout(() => {
-                if (confirm('UPI app not found. Would you like to copy the payment URL?')) {
-                    navigator.clipboard.writeText(upiURL).then(() => {
-                        alert('UPI URL copied to clipboard!');
-                    }).catch(() => {
-                        prompt('Copy this UPI URL:', upiURL);
-                    });
-                }
-            }, 6000);
+            // setTimeout(() => {
+            //     if (confirm('UPI app not found. Would you like to copy the payment URL?')) {
+            //         navigator.clipboard.writeText(upiURL).then(() => {
+            //             alert('UPI URL copied to clipboard!');
+            //         }).catch(() => {
+            //             prompt('Copy this UPI URL:', upiURL);
+            //         });
+            //     }
+            // }, 6000);
         }
 
         function initiatePayment(paymentId) {
