@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:title" content="Rotary District 3192 UPI Payment Link"/>
+    <meta property="og:description" content="Rotary District 3192 UPI Payment Link"/>
+    <meta property="og:url" content="https://upipay.rbhn.org"/>
+    <meta property="og:image"content="https://upipay.rbhn.org/RotaryMBS-Simple_REV-Gold-CMYK-C.png"/>
+
+
+    <title>Rotary District 3192 UPI Payment Link</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .popup-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .countdown {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #ffeaea;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #f5c6cb;
+            margin: 20px 0;
+        }
+
+        .success {
+            color: #27ae60;
+        }
+
+        .payment-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .payment-details h3 {
+            margin-top: 0;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6168;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="Rotary-District-3192-OG.png" alt="Rotary Logo" style="width: 25%; margin-bottom: 20px;">
+        <h1>UPI payment</h1>
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading payment details...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="popup" class="popup">
+        <div class="popup-content">
+            <h2>Redirecting to UPI App</h2>
+            <p>You will be redirected to your UPI app in:</p>
+            <div class="countdown" id="countdown">3</div>
+            <p>Please complete the payment in your UPI app.</p>
+            <button class="btn btn-cancel" onclick="cancelRedirect()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample JSON data - in a real scenario, this would be loaded from a file
+        const paymentData = [
+            // {
+            //     "id": "zzk080625a",
+            //     "upi_address": "merchant@paytm",
+            //     "name": "Coffee Shop Payment",
+            //     "currency": "INR",
+            //     "amount": 250,
+            //     "note": "Morning Coffee"
+            // },
+            // {
+            //     "id": "a7z010126c",
+            //     "upi_address": "shop@phonepe",
+            //     "name": "Grocery Store",
+            //     "currency": "INR",
+            //     "amount": 1500,
+            //     "note": "Weekly Groceries"
+            // },
+            {
+                "id": "akn080625b",
+                "upi_address": "MAB.037347014960270@AXISBANK",
+                "name": "RID 3192 Admin 25 26",
+                "currency": "INR",
+                "amount": 500,
+                "note": "Jun 8th Grant, Membership and Public Image Seminar"
+            }
+        ];
+
+        let redirectTimeout;
+
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function encodeForUPI(text) {
+            return encodeURIComponent(text);
+        }
+
+        function constructUPIURL(paymentInfo) {
+            const pa = encodeForUPI(paymentInfo.upi_address);
+            const pn = encodeForUPI(paymentInfo.name);
+            const cu = encodeForUPI(paymentInfo.currency || 'INR');
+            const am = encodeForUPI(paymentInfo.amount.toString());
+            const tn = encodeForUPI(paymentInfo.note);
+            
+            return `upi://pay?pa=${pa}&pn=${pn}&cu=${cu}&am=${am}&tn=${tn}`;
+        }
+
+        function showPaymentDetails(paymentInfo) {
+            return `
+                <div class="success">
+                    <h2>✓ You are making the payment for:</h2>
+                </div>
+                <div class="payment-details">
+                    <h3>Payment Information</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">ID:</span>
+                        <span class="detail-value">${paymentInfo.id}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Recipient:</span>
+                        <span class="detail-value">${paymentInfo.name}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">UPI Address:</span>
+                        <span class="detail-value">${paymentInfo.upi_address}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Amount:</span>
+                        <span class="detail-value">${paymentInfo.currency || 'INR'} ${paymentInfo.amount}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Event or purpose</span>
+                        <span class="detail-value">${paymentInfo.note}</span>
+                    </div>
+                </div>
+                <button class="btn" onclick="initiatePayment('${paymentInfo.id}')">Proceed to Payment</button>
+            `;
+        }
+
+        function showError(message) {
+            return `
+                <div class="error">
+                    <h2>❌ Error</h2>
+                    <p>${message}</p>
+                    <p>Please check the URL and try again.</p>
+                </div>
+            `;
+        }
+
+        function showPopup() {
+            document.getElementById('popup').style.display = 'flex';
+        }
+
+        function hidePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        function startCountdown(callback) {
+            let count = 3;
+            const countdownElement = document.getElementById('countdown');
+            
+            const interval = setInterval(() => {
+                countdownElement.textContent = count;
+                if (count <= 0) {
+                    clearInterval(interval);
+                    hidePopup();
+                    callback();
+                }
+                count--;
+            }, 1000);
+
+            redirectTimeout = interval;
+        }
+
+        function cancelRedirect() {
+            if (redirectTimeout) {
+                clearInterval(redirectTimeout);
+            }
+            hidePopup();
+        }
+
+        function redirectToUPI(upiURL) {
+            // Try to open the UPI URL
+            window.location.href = upiURL;
+            
+            // Fallback: If the UPI app doesn't open, show the URL
+            setTimeout(() => {
+                if (confirm('UPI app not found. Would you like to copy the payment URL?')) {
+                    navigator.clipboard.writeText(upiURL).then(() => {
+                        alert('UPI URL copied to clipboard!');
+                    }).catch(() => {
+                        prompt('Copy this UPI URL:', upiURL);
+                    });
+                }
+            }, 2000);
+        }
+
+        function initiatePayment(paymentId) {
+            const paymentInfo = paymentData.find(item => item.id === paymentId);
+            if (!paymentInfo) {
+                alert('Payment information not found!');
+                return;
+            }
+
+            const upiURL = constructUPIURL(paymentInfo);
+            console.log('Generated UPI URL:', upiURL);
+
+            showPopup();
+            startCountdown(() => {
+                redirectToUPI(upiURL);
+            });
+        }
+
+        function loadPaymentData() {
+            // In a real application, you would fetch from a JSON file like this:
+            // fetch('payments.json')
+            //     .then(response => response.json())
+            //     .then(data => processPayment(data))
+            //     .catch(error => showErrorInContent('Failed to load payment data: ' + error.message));
+            
+            // For this demo, we'll use the hardcoded data
+            setTimeout(() => {
+                processPayment(paymentData);
+            }, 1000);
+        }
+
+        function processPayment(data) {
+            const paymentId = getUrlParameter('id');
+            const contentElement = document.getElementById('content');
+
+            if (!paymentId) {
+                contentElement.innerHTML = showError('Invalid payment link. Please check your link.');
+                return;
+            }
+
+            const paymentInfo = data.find(item => item.id === paymentId);
+
+            if (!paymentInfo) {
+                contentElement.innerHTML = showError(`Invalid or expired payment link. Please check your link and try again.`);
+                return;
+            }
+
+            contentElement.innerHTML = showPaymentDetails(paymentInfo);
+        }
+
+        function showErrorInContent(message) {
+            document.getElementById('content').innerHTML = showError(message);
+        }
+
+        // Initialize the application
+        window.addEventListener('load', () => {
+            loadPaymentData();
+        });
+
+        // Handle browser back button during redirect
+        window.addEventListener('beforeunload', () => {
+            if (redirectTimeout) {
+                clearInterval(redirectTimeout);
+            }
+        });
+    </script>
+</body>
+</html>
