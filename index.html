@@ -227,7 +227,7 @@
             const am = encodeForUPI(paymentInfo.amount.toString());
             const tn = encodeForUPI(paymentInfo.note);
             
-            return `upi://pay?pa=${pa}&pn=${pn}&cu=${cu}&am=${am}&tn=${paymentInfo.id}#${tn}`;
+            return `upi://pay?pa=${pa}&pn=${pn}&cu=${cu}&am=${am}&tn=${paymentInfo.id}.${tn}`;
         }
 
         function showPaymentDetails(paymentInfo) {
@@ -317,7 +317,7 @@
                         prompt('Copy this UPI URL:', upiURL);
                     });
                 }
-            }, 2000);
+            }, 6000);
         }
 
         function initiatePayment(paymentId) {
