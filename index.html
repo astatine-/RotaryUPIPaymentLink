@@ -147,6 +147,35 @@
             margin-bottom: 30px;
         }
 
+         .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-help {
+            color: #666;
+            display: block;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
         .btn {
             background: #17458f;
             color: white;
@@ -170,9 +199,34 @@
         .btn-cancel:hover {
             background: #5a6168;
         }
+
+
+        .slide-header, .slide-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        text-align: center;
+        z-index: 1000;
+        font-size: 8px;
+        background:  var(--RotaryRoyalBlue);
+        color: white;
+        padding: 5px;
+        }
+
+        .slide-header {
+        top: 0;
+        }
+
+        .slide-footer {
+        bottom: 0;
+        }
+
     </style>
 </head>
 <body>
+
+    <div class="slide-footer">Supported by Rotary Bengaluru Heritage North</div>
+
     <div class="container">
         <img src="Rotary-District-3192-OG.png" alt="Rotary Logo" style="width: 25%; margin-bottom: 20px;">
         <div id="content">
@@ -204,29 +258,29 @@
             //     "amount": 250,
             //     "note": "Morning Coffee"
             // },
-            // {
-            //     "id": "a7z010126c",
-            //     "upi_address": "shop@phonepe",
-            //     "name": "Grocery Store",
-            //     "currency": "INR",
-            //     "amount": 1500,
-            //     "note": "Weekly Groceries"
-            // },
             {
-                "id": "czy300925a",
-                "upi_address": "MAB.037347014960270@AXISBANK",
-                "name": "RID 3192 Admin 25 26",
+                "id": "a7z010126c",
+                "upi_address": "tanksalirashmi@okhdfcbank",
+                "name": "Rashmi Tanksali",
                 "currency": "INR",
-                "amount": 6000,
-                "note": "Maarga 6 ICGFs registration package"
+                "amount": 11,
+                "note": "Test payment"
             },
             {
-                "id": "akn080625b",
+                "id": "xxk080625a",
                 "upi_address": "MAB.037347014960270@AXISBANK",
                 "name": "RID 3192 Admin 25 26",
                 "currency": "INR",
-                "amount": 500,
-                "note": "Jun 8th Grant, Membership and Public Image Seminar"
+                "amount": 10,
+                "note": "10Rs test payment"
+            },
+            {
+                "id": "xxk080625b",
+                "upi_address": "MAB.037347014960270@AXISBANK",
+                "name": "RID 3192 Admin 25 26",
+                "currency": "INR",
+                "amount": 5,
+                "note": "5Rs test payment"
             }
         ];
 
@@ -241,14 +295,20 @@
             return encodeURIComponent(text);
         }
 
-        function constructUPIURL(paymentInfo) {
+        function constructUPIURL(paymentInfo, payerName = '') {
             const pa = encodeForUPI(paymentInfo.upi_address);
             const pn = encodeForUPI(paymentInfo.name);
             const cu = encodeForUPI(paymentInfo.currency || 'INR');
             const am = encodeForUPI(paymentInfo.amount.toString());
-            const tn = encodeForUPI(paymentInfo.note);
             
-            return `upi://pay?pa=${pa}&pn=${pn}&cu=${cu}&am=${am}&tn=${paymentInfo.id}.${tn}`;
+            // Append payer name to note if provided
+            let noteText = paymentInfo.id;
+            if (payerName && payerName.trim()) {
+                noteText += `.${payerName.trim()}`;
+            }
+            const tn = encodeForUPI(noteText);
+
+            return `upi://pay?pa=${pa}&pn=${pn}&cu=${cu}&am=${am}&tn=${tn}`;
         }
 
         function showPaymentDetails(paymentInfo) {
@@ -279,6 +339,15 @@
                         <span class="detail-value">${paymentInfo.note}</span>
                     </div>
                 </div>
+                <div class="payment-details">
+                    <h3>Payer Information</h3>
+                    <div style="margin: 15px 0;">
+                        <label for="payerName" class="input-label">Your Name:</label>
+                        <input type="text" id="payerName" class="input-field" placeholder="Enter your name" maxlength="24" required>
+                        <small class="input-help">This will be added to the payment note</small>
+                    </div>
+                </div>
+
                 <button class="btn" onclick="initiatePayment('${paymentInfo.id}')">Proceed to Payment</button>
             `;
         }
@@ -347,8 +416,23 @@
                 alert('Payment information not found!');
                 return;
             }
+            // Get payer name from input field
+            const payerNameInput = document.getElementById('payerName');
+            const payerName = payerNameInput.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
+            
+            
+            // Validate payer name
+            if (!payerName) {
+                payerNameInput.focus();
+                payerNameInput.style.borderColor = '#e74c3c';
+                alert('Please enter your name before proceeding.');
+                return;
+            }
 
-            const upiURL = constructUPIURL(paymentInfo);
+            // Reset border color if previously marked as error
+            payerNameInput.style.borderColor = '#ddd';
+
+            const upiURL = constructUPIURL(paymentInfo, payerName);
             console.log('Generated UPI URL:', upiURL);
 
             showPopup();
