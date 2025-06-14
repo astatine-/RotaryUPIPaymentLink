@@ -418,8 +418,7 @@
             }
             // Get payer name from input field
             const payerNameInput = document.getElementById('payerName');
-            const payerName = payerNameInput.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
-            
+            const payerName = payerNameInput.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24);
             
             // Validate payer name
             if (!payerName) {
